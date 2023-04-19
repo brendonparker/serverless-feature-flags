@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFF.InfrastructureAsCode", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3DA99407-2C2A-4851-B5CF-5CFCA995C8DD}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		cdk.json = cdk.json
+		Readme.md = Readme.md
 	EndProjectSection
 EndProject
 Global
