@@ -8,6 +8,11 @@
 
 	<ItemGroup>
 		<PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.6.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\SSF.Implementations\SSF.Implementations.csproj" />
 	</ItemGroup>
 
 </Project>

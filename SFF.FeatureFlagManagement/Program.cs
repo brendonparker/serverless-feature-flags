@@ -1,8 +1,19 @@
+using Serilog;
+using Serilog.Enrichers.Span;
+using Serilog.Formatting.Elasticsearch;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+builder.Host.UseSerilog((ctx, config) =>
+{
+    config.MinimumLevel.Information()
+    .Enrich.WithSpan()
+    .WriteTo.Console(new ElasticsearchJsonFormatter());
+});
 
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 builder.Services.AddRazorPages();
+builder.Services.AddSSFImplementations(builder.Configuration);
 
 var app = builder.Build();
 

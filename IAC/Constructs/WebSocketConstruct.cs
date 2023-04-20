@@ -32,8 +32,8 @@ public class WebSocketConstruct : Construct
 
         LambdaProxy = new Function(this, "Lambda", new FunctionProps
         {
-            Code = Code.FromAsset("LambdaSource/SFF.Lambdas"),
-            Handler = "SFF.Lambdas::SFF.Lambdas.WebSocketLambdaHandlerWrapper::HandleAsync",
+            Code = Code.FromAsset("LambdaSource/SFF.WebSockets"),
+            Handler = "SFF.WebSockets::SFF.WebSockets.EntryPoint::HandleAsync",
             Runtime = Runtime.DOTNET_6,
             MemorySize = 1536,
             Environment = new Dictionary<string, string>
