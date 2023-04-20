@@ -14,4 +14,8 @@
 	  <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.102.28" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\SSF.Core\SSF.Core.csproj" />
+	</ItemGroup>
+
 </Project>

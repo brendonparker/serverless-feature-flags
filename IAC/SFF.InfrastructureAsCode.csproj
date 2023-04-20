@@ -18,4 +18,8 @@
     -->
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SSF.Core\SSF.Core.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,7 @@
 ﻿using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using SFF.Lambdas.Auth;
 
 namespace SFF.Lambdas;
 
@@ -11,11 +12,13 @@ public class WebSocketLambdaHandler
     private readonly Dictionary<string, ApiGatewayProxyRoute> _routes;
     private readonly Amazon.DynamoDBv2.AmazonDynamoDBClient _client;
     private readonly Table _table;
+    private readonly IApiKeyValidation _authenicator;
 
     public WebSocketLambdaHandler()
     {
         _client = new Amazon.DynamoDBv2.AmazonDynamoDBClient();
-        _table = Table.LoadTable(_client, new TableConfig(Constants.TABLE_NAME));
+        _table = Table.LoadTable(_client, new TableConfig(Constants.TableConnections));
+        _authenicator = new ApiKeyValidation();
 
         _routes = new()
         {
@@ -30,10 +33,18 @@ public class WebSocketLambdaHandler
 
     public async Task<APIGatewayProxyResponse> HandleConnectAsync(APIGatewayProxyRequest request)
     {
-        var doc = new Document();
-        doc[Constants.PartitionKey] = $"Connection|{request.RequestContext.ConnectionId}";
-        doc[Constants.SortKey] = request.RequestContext.ConnectionId;
-        doc[Constants.Expiry] = (int)(DateTime.UtcNow.AddHours(4) - DateTime.UnixEpoch).TotalSeconds;
+        if (!request.QueryStringParameters.ContainsKey("apiKey")) return new APIGatewayProxyResponse { StatusCode = 401 };
+
+        var apiKey = await _authenicator.ValidateAsync(request.QueryStringParameters["apiKey"]);
+
+        if (apiKey == null) return new APIGatewayProxyResponse { StatusCode = 401 };
+
+        var doc = new Document(new()
+        {
+            [Constants.ConnectionId] = request.RequestContext.ConnectionId,
+            [Constants.Expiry] = (int)(DateTime.UtcNow.AddHours(4) - DateTime.UnixEpoch).TotalSeconds,
+            [Constants.CustomerId] = apiKey.CustomerId,
+        });
 
         await _table.PutItemAsync(doc);
 
@@ -45,9 +56,10 @@ public class WebSocketLambdaHandler
 
     public async Task<APIGatewayProxyResponse> HandleDisconnectAsync(APIGatewayProxyRequest request)
     {
-        var doc = new Document();
-        doc[Constants.PartitionKey] = $"Connection|{request.RequestContext.ConnectionId}";
-        doc[Constants.SortKey] = request.RequestContext.ConnectionId;
+        var doc = new Document(new()
+        {
+            [Constants.ConnectionId] = request.RequestContext.ConnectionId
+        });
         await _table.DeleteItemAsync(doc);
         return new APIGatewayProxyResponse
         {

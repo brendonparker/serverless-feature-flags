@@ -1,15 +1,16 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.Apigatewayv2.Alpha;
 using Amazon.CDK.AWS.Apigatewayv2.Integrations.Alpha;
+using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.Lambda;
 using Constructs;
 using System.Collections.Generic;
 
-namespace SFF.Infrastructure;
+namespace SFF.InfrastructureAsCode.Constructs;
 
 public class WebSocketConstructProps
 {
-    public string TableName { get; set; }
+    public ITable ApiKeyTable { get; init; }
 }
 
 public class WebSocketConstruct : Construct
@@ -18,6 +19,17 @@ public class WebSocketConstruct : Construct
 
     public WebSocketConstruct(Construct scope, string id, WebSocketConstructProps props) : base(scope, id)
     {
+        var table = new Table(this, "Table", new TableProps
+        {
+            PartitionKey = new Attribute
+            {
+                Name = Constants.ConnectionId,
+                Type = AttributeType.STRING
+            },
+            TimeToLiveAttribute = Constants.Expiry,
+            RemovalPolicy = RemovalPolicy.DESTROY,
+        });
+
         LambdaProxy = new Function(this, "Lambda", new FunctionProps
         {
             Code = Code.FromAsset("LambdaSource/SFF.Lambdas"),
@@ -26,7 +38,9 @@ public class WebSocketConstruct : Construct
             MemorySize = 1536,
             Environment = new Dictionary<string, string>
             {
-                ["TABLE_NAME"] = props.TableName
+                ["LAMBDA_NET_SERIALIZER_DEBUG"] = "true",
+                [Constants.TABLE_NAME_CONNECTIONS] = table.TableName,
+                [Constants.TABLE_NAME_API_KEYS] = props.ApiKeyTable.TableName,
             }
         });
 
@@ -54,6 +68,8 @@ public class WebSocketConstruct : Construct
         });
 
         api.GrantManageConnections(LambdaProxy);
+        table.GrantReadWriteData(LambdaProxy);
+        props.ApiKeyTable.GrantReadData(LambdaProxy);
 
         new CfnOutput(this, "WsApiEndpoint", new CfnOutputProps
         {
