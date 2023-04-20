@@ -15,6 +15,18 @@ public class WebSocketConnectionRepository : IWebSocketConnectionRepository
         _table = Table.LoadTable(client, new TableConfig(Constants.TableConnections));
     }
 
+    public async Task<WebSocketConnectionInfo> GetAsync(string connectionId)
+    {
+        var doc = await _table.GetItemAsync(connectionId);
+        if (doc == null) return null;
+        return new WebSocketConnectionInfo
+        {
+            ConnectionId = doc[Constants.ConnectionId].AsString(),
+            CustomerId = doc[Constants.CustomerId].AsString(),
+            Expiry = DateTime.UnixEpoch.AddSeconds(doc[Constants.Expiry].AsInt()),
+        };
+    }
+
     public async Task InsertAsync(WebSocketConnectionInfo info)
     {
         var doc = new Document(new()

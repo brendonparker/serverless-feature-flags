@@ -61,7 +61,7 @@ public class WebSocketLambdaHandler
 
     public async Task<APIGatewayProxyResponse> HandleDefaultAsync(APIGatewayProxyRequest request)
     {
-        await Task.CompletedTask;
+        var conn = await _webSocketConnectionRepository.GetAsync(request.RequestContext.ConnectionId);
         return new APIGatewayProxyResponse
         {
             StatusCode = 200
