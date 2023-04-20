@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSF.Core", "SSF.Core\SSF.Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SSF.Console", "SSF.Console\SSF.Console.csproj", "{D790C458-D548-4927-A526-B8AF8D1DA42C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFF.FeatureFlagManagement", "SFF.FeatureFlagManagement\SFF.FeatureFlagManagement.csproj", "{CCA85BBD-2011-41D1-BCAD-DA211AB0E854}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{D790C458-D548-4927-A526-B8AF8D1DA42C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D790C458-D548-4927-A526-B8AF8D1DA42C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D790C458-D548-4927-A526-B8AF8D1DA42C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCA85BBD-2011-41D1-BCAD-DA211AB0E854}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCA85BBD-2011-41D1-BCAD-DA211AB0E854}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCA85BBD-2011-41D1-BCAD-DA211AB0E854}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCA85BBD-2011-41D1-BCAD-DA211AB0E854}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

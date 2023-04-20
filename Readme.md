@@ -19,6 +19,7 @@ This section describes the steps to build and deploy.
 ### Build Script
 ```
 dotnet publish ./SFF.Lambdas -c Release -o ./LambdaSource/SFF.Lambdas
+dotnet publish ./SFF.FeatureFlagManagement -c Release -o ./LambdaSource/SFF.FeatureFlagManagement
 ```
 
 ### Deploy
