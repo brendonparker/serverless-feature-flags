@@ -41,7 +41,8 @@ public class WebSocketLambdaHandler
         {
             ConnectionId = request.RequestContext.ConnectionId,
             Expiry = DateTime.UtcNow.AddHours(4),
-            CustomerId = apiKey.CustomerId
+            CustomerId = apiKey.CustomerId,
+            EnvironmentId = apiKey.EnvironmentId
         });
 
         return new APIGatewayProxyResponse

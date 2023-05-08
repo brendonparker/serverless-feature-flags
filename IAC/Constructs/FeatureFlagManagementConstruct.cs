@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.DynamoDB;
+using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
 using Constructs;
 using System.Collections.Generic;
@@ -8,27 +9,41 @@ namespace SFF.InfrastructureAsCode.Constructs;
 
 public class FeatureFlagManagementConstructProps
 {
-    public ITable ApiKeyTable { get; init; }
 }
 
 public class FeatureFlagManagementConstruct : Construct
 {
     public IFunction LambdaProxy { get; }
+    public ITable Table { get; }
 
-    public FeatureFlagManagementConstruct(Construct scope, string id, FeatureFlagManagementConstructProps props) : base(scope, id)
+    public FeatureFlagManagementConstruct(Construct scope, string id, FeatureFlagManagementConstructProps props = null) : base(scope, id)
     {
+        props ??= new();
+
         var table = new Table(this, "Table", new TableProps
         {
             PartitionKey = new Attribute
             {
-                Name = Constants.CustomerId,
+                Name = Constants.PK,
                 Type = AttributeType.STRING
             },
             SortKey = new Attribute
             {
-                Name = "FeatureFlagKey"
+                Name = Constants.SK,
+                Type = AttributeType.STRING
             },
             RemovalPolicy = RemovalPolicy.DESTROY,
+        });
+
+
+        table.AddGlobalSecondaryIndex(new GlobalSecondaryIndexProps
+        {
+            IndexName = "GSI_ApiKeyHash",
+            PartitionKey = new Attribute
+            {
+                Name = "ApiKeyHash",
+                Type = AttributeType.STRING
+            }
         });
 
         LambdaProxy = new Function(this, "Lambda", new FunctionProps
@@ -40,9 +55,37 @@ public class FeatureFlagManagementConstruct : Construct
             Environment = new Dictionary<string, string>
             {
                 //["LAMBDA_NET_SERIALIZER_DEBUG"] = "true",
-                [Constants.TABLE_NAME_API_KEYS] = props.ApiKeyTable.TableName,
+                [Constants.SSF_TABLE_NAME] = table.TableName,
+                ["Auth0__Domain"] = "",
+                ["Auth0__ClientId"] = "",
             }
         });
+
+        var ssmPolicy = new Policy(this, "SSMPolicy", new PolicyProps
+        {
+            Document = new PolicyDocument(new PolicyDocumentProps
+            {
+                Statements = new[]
+                {
+                    new PolicyStatement(new PolicyStatementProps
+                    {
+                        Actions = new []
+                        {
+                            "ssm:PutParameter",
+                            "ssm:GetParametersByPath",
+                            "ssm:GetParameters",
+                            "ssm:GetParameter"
+                        },
+                        Resources = new []
+                        {
+                            $"arn:aws:ssm:*:{Aws.ACCOUNT_ID}:parameter/*"
+                        },
+                    })
+                }
+            })
+        });
+
+        LambdaProxy.Role.AttachInlinePolicy(ssmPolicy);
 
         var functionUrl = LambdaProxy.AddFunctionUrl(new FunctionUrlOptions
         {
@@ -50,6 +93,8 @@ public class FeatureFlagManagementConstruct : Construct
         });
 
         table.GrantReadWriteData(LambdaProxy);
+
+        Table = table;
 
         new CfnOutput(this, "MgmtApiEndpoint", new CfnOutputProps
         {

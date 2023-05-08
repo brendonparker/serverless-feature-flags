@@ -5,7 +5,7 @@ namespace SFF.Lambdas.Auth;
 
 public interface IApiKeyGenerator
 {
-    Task<string> GenerateAsync(string customerId);
+    Task<string> GenerateAsync(string customerId, string environmentId);
 }
 
 public class ApiKeyGenerator : IApiKeyGenerator
@@ -17,14 +17,15 @@ public class ApiKeyGenerator : IApiKeyGenerator
         _db = db;
     }
 
-    public async Task<string> GenerateAsync(string customerId)
+    public async Task<string> GenerateAsync(string customerId, string environmentId)
     {
         var key = AuthUtils.Generate();
 
         await _db.InsertApiKeyAsync(new ApiKey
         {
             ApiKeyHash = AuthUtils.ComputeHash(key),
-            CustomerId = customerId
+            CustomerId = customerId,
+            EnvironmentId = environmentId
         });
 
         return key;

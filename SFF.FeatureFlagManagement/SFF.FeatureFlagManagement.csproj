@@ -7,7 +7,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Amazon.AspNetCore.DataProtection.SSM" Version="3.1.0" />
 		<PackageReference Include="Amazon.Lambda.AspNetCoreServer.Hosting" Version="1.6.0" />
+		<PackageReference Include="Auth0.AspNetCore.Authentication" Version="1.2.0" />
 		<PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
 	</ItemGroup>
 

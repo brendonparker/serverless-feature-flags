@@ -12,7 +12,7 @@ public class WebSocketConnectionRepository : IWebSocketConnectionRepository
 
     public WebSocketConnectionRepository(IAmazonDynamoDB client)
     {
-        _table = Table.LoadTable(client, new TableConfig(Constants.TableConnections));
+        _table = Table.LoadTable(client, new TableConfig(Constants.TableNameConnections));
     }
 
     public async Task<WebSocketConnectionInfo> GetAsync(string connectionId)
@@ -21,8 +21,9 @@ public class WebSocketConnectionRepository : IWebSocketConnectionRepository
         if (doc == null) return null;
         return new WebSocketConnectionInfo
         {
-            ConnectionId = doc[Constants.ConnectionId].AsString(),
-            CustomerId = doc[Constants.CustomerId].AsString(),
+            ConnectionId = doc[Constants.ConnectionId],
+            CustomerId = doc[Constants.CustomerId],
+            EnvironmentId = doc[Constants.EnvironmentId],
             Expiry = DateTime.UnixEpoch.AddSeconds(doc[Constants.Expiry].AsInt()),
         };
     }
@@ -33,6 +34,8 @@ public class WebSocketConnectionRepository : IWebSocketConnectionRepository
         {
             [Constants.ConnectionId] = info.ConnectionId,
             [Constants.CustomerId] = info.CustomerId,
+            [Constants.EnvironmentId] = info.EnvironmentId,
+            ["CustEnv"] = $"c#{info.CustomerId}|e#{info.EnvironmentId}",
             [Constants.Expiry] = (int)(info.Expiry - DateTime.UnixEpoch).TotalSeconds
         });
 

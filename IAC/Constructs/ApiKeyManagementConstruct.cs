@@ -21,7 +21,7 @@ public class ApiKeyManagementConstruct : Construct
         {
             PartitionKey = new Attribute
             {
-                Name = Constants.ApiKeyHash,
+                Name = Constants.PK,
                 Type = AttributeType.STRING
             },
             RemovalPolicy = RemovalPolicy.DESTROY,

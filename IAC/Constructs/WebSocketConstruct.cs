@@ -10,7 +10,7 @@ namespace SFF.InfrastructureAsCode.Constructs;
 
 public class WebSocketConstructProps
 {
-    public ITable ApiKeyTable { get; init; }
+    public ITable MainTable { get; init; }
 }
 
 public class WebSocketConstruct : Construct
@@ -39,8 +39,8 @@ public class WebSocketConstruct : Construct
             Environment = new Dictionary<string, string>
             {
                 ["LAMBDA_NET_SERIALIZER_DEBUG"] = "true",
-                [Constants.TABLE_NAME_CONNECTIONS] = table.TableName,
-                [Constants.TABLE_NAME_API_KEYS] = props.ApiKeyTable.TableName,
+                [Constants.SSF_TABLE_NAME_CONNECTIONS] = table.TableName,
+                [Constants.SSF_TABLE_NAME] = props.MainTable.TableName,
             }
         });
 
@@ -69,7 +69,7 @@ public class WebSocketConstruct : Construct
 
         api.GrantManageConnections(LambdaProxy);
         table.GrantReadWriteData(LambdaProxy);
-        props.ApiKeyTable.GrantReadData(LambdaProxy);
+        props.MainTable.GrantReadData(LambdaProxy);
 
         new CfnOutput(this, "WsApiEndpoint", new CfnOutputProps
         {
